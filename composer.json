@@ -1,0 +1,44 @@
+{
+  "name": "d3/linkmobility4ordermanager",
+  "description": "Linkmobility integration for D3 Ordermanager",
+  "type": "oxideshop-module",
+  "keywords": [
+    "oxid",
+    "modules",
+    "eShop",
+    "d3",
+    "ordermanager",
+    "linkmobilty
+  ],
+  "authors": [
+    {
+        "name": "D3 Data Development (Inh. Thomas Dartsch)",
+        "email": "info@shopmodule.com",
+        "homepage": "https://www.d3data.de",
+        "role": "Owner"
+    }
+  ],
+  "support": {
+    "email": "support@shopmodule.com"
+  },
+  "homepage": "https://www.oxidmodule.com/",
+  "license": [
+    "proprietary"
+  ],
+  "extra": {
+    "oxideshop": {
+      "source-directory": "/src",
+      "target-directory": "d3/extsearch"
+    }
+  },
+  "require": {
+    "php": ">=7.3",
+    "d3/ordermanager": "^5.0",
+    "d3/linkmobility4oxid": "^1.0",
+  },
+  "autoload": {
+    "psr-4": {
+      "D3\\Linkmobility4Ordermanager\\": "../../../source/modules/d3/linkmobility4ordermanager"
+    }
+  }
+}
