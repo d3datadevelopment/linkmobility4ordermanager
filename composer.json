@@ -28,7 +28,7 @@
   "extra": {
     "oxideshop": {
       "source-directory": "/src",
-      "target-directory": "d3/extsearch"
+      "target-directory": "d3/linkmobility4ordermanager"
     }
   },
   "require": {
