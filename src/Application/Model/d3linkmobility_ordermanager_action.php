@@ -15,12 +15,16 @@ declare(strict_types=1);
 
 namespace D3\Linkmobility4Ordermanager\Application\Model;
 
+use D3\ModCfg\Application\Model\Exception\d3_cfg_mod_exception;
+use D3\ModCfg\Application\Model\Exception\d3ShopCompatibilityAdapterException;
 use D3\Ordermanager\Application\Model\Actions\d3ordermanager_action_abstract;
 use D3\Ordermanager\Application\Model\d3ordermanager_conf;
 use Doctrine\DBAL\DBALException;
 use OxidEsales\Eshop\Application\Model\Content;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
+use OxidEsales\Eshop\Core\Exception\DatabaseException;
+use OxidEsales\Eshop\Core\Exception\StandardException;
 
 class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 {
@@ -99,18 +103,14 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 
         $aMailDesc = [];
         $aEditedValues ?
-            ($aEditedValues['blSendMailToCustomer'] ? $aMailDesc[] = 'Customer' : '') :
-            ($this->getManager()->getValue('blSendMailToCustomer') ? $aMailDesc[] = 'Customer' : '');
+            ($aEditedValues['blLinkMobilityMessageToCustomer'] ? $aMailDesc[] = 'Customer' : '') :
+            ($this->getManager()->getValue('blLinkMobilityMessageToCustomer') ? $aMailDesc[] = 'Customer' : '');
         $aEditedValues ?
-            ($aEditedValues['blSendMailToOwner'] ? $aMailDesc[] = 'Owner' : '') :
-            ($this->getManager()->getValue('blSendMailToOwner') ? $aMailDesc[] = 'Owner' : '');
-        $aEditedValues ?
-            ($aEditedValues['blSendMailToCustom'] ? $aMailDesc[] = 'Custom: ' . $aEditedValues['sSendMailToCustomAddress'] : '') :
-            ($this->getManager()->getValue('blSendMailToCustom') ?
-                $aMailDesc[] = 'Custom: ' . $this->getManager()->getValue('sSendMailToCustomAddress') :
+            ($aEditedValues['blLinkMobilityMessageToCustom'] ? $aMailDesc[] = 'Custom: ' . $aEditedValues['sLinkMobilityMessageToCustomAddress'] : '') :
+            ($this->getManager()->getValue('blLinkMobilityMessageToCustom') ?
+                $aMailDesc[] = 'Custom: ' . $this->getManager()->getValue('sLinkMobilityMessageToCustomAddress') :
                 ''
             );
-    }
 
         return implode(', ', $aMailDesc);
     }
@@ -175,6 +175,33 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
     public function canExecuteMethod(): bool
     {
         return $this->getManager()->getExecMode();
+    }
+
+    /**
+     * @throws DBALException
+     * @throws DatabaseConnectionException
+     * @throws DatabaseErrorException
+     * @throws DatabaseException
+     * @throws StandardException
+     * @throws d3ShopCompatibilityAdapterException
+     * @throws d3_cfg_mod_exception
+     */
+    public function startExecution()
+    {
+        if ($this->canExecuteMethod() && $this->hasRequiredValues()) {
+            $this->getSendClass()->sendOrderManagerSms($this->getManager(), $this->getItem());
+        }
+    }
+
+    /**
+     * @return d3linkmobility_ordermanager_sender
+     */
+    public function getSendClass()
+    {
+        /** @var d3linkmobility_ordermanager_sender $mailer */
+        $sender = oxNew(d3linkmobility_ordermanager_sender::class);
+
+        return $sender;
     }
 
     /**
