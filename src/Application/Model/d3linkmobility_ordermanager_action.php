@@ -25,6 +25,7 @@ use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\DatabaseException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
+use OxidEsales\Eshop\Core\Language;
 
 class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 {
@@ -80,7 +81,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
         startProfile(__METHOD__);
 
         /** @var Language $oLang */
-        $oLang = d3GetModCfgDIC()->get('d3ox.ordermanager.'.Language::class);
+        $oLang = oxNew(Language::class);
 
         $this->getManager()->getRemarkHandler()->addNote(
             sprintf(
@@ -113,6 +114,21 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             );
 
         return implode(', ', $aMailDesc);
+    }
+
+    /**
+     * @param bool $blExpected
+     *
+     * @return bool
+     */
+    protected function hasRequiredValuesNoSource(bool $blExpected): bool
+    {
+        $source = (string) $this->getManager()->getValue( 'sLinkMobilityMessageFromSource' );
+
+        $return = strlen(trim($source)) &&
+                  in_array(trim($source), [self::SOURCE_CMS, self::SOURCE_TEMPLATE]);
+
+        return $blExpected ? $return : false === $return;
     }
 
     /**
@@ -196,7 +212,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
     /**
      * @return d3linkmobility_ordermanager_sender
      */
-    public function getSendClass()
+    public function getSendClass(): d3linkmobility_ordermanager_sender
     {
         /** @var d3linkmobility_ordermanager_sender $mailer */
         $sender = oxNew(d3linkmobility_ordermanager_sender::class);
