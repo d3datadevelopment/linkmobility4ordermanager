@@ -152,6 +152,21 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
      *
      * @return bool
      */
+    protected function hasRequiredValuesNoSource(bool $blExpected): bool
+    {
+        $source = (string) $this->getManager()->getValue( 'sLinkMobilityMessageFromSource' );
+
+        $return = strlen(trim($source)) &&
+                  in_array(trim($source), [self::SOURCE_CMS, self::SOURCE_TEMPLATE]);
+
+        return $blExpected ? $return : false === $return;
+    }
+
+    /**
+     * @param bool $blExpected
+     *
+     * @return bool
+     */
     protected function hasRequiredValuesTplSource(bool $blExpected): bool
     {
         $source = (string) $this->getManager()->getValue( 'sLinkMobilityMessageFromSource' );
