@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace D3\Linkmobility4Ordermanager\Modules\Ordermanager\Application\Model;
 
-use D3\Linkmobility4Ordermanager\Application\Model\d3linkmobility_ordermanager_action;
+use D3\Linkmobility4Ordermanager\Application\Model\Actions\d3linkmobility_ordermanager_action;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;

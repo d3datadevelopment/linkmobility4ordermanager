@@ -43,6 +43,6 @@ $aModule = [
         'd3linkmobility_ordermanager_action.tpl'    => 'd3/linkmobility4ordermanager/Application/views/admin/tpl/d3linkmobility_ordermanager_action.tpl'
     ],
     'events'       => [],
-    'blocks'        => [],
+    'blocks'       => [],
     'settings'     => []
 ];

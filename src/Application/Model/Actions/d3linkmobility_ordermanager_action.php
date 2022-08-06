@@ -13,8 +13,11 @@
 
 declare(strict_types=1);
 
-namespace D3\Linkmobility4Ordermanager\Application\Model;
+namespace D3\Linkmobility4Ordermanager\Application\Model\Actions;
 
+use D3\Linkmobility4Ordermanager\Application\Model\d3linkmobility_ordermanager_sender;
+use D3\Linkmobility4Ordermanager\Application\Model\Exceptions\emptyMesageException;
+use D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException;
 use D3\ModCfg\Application\Model\Exception\d3_cfg_mod_exception;
 use D3\ModCfg\Application\Model\Exception\d3ShopCompatibilityAdapterException;
 use D3\Ordermanager\Application\Model\Actions\d3ordermanager_action_abstract;
@@ -25,6 +28,8 @@ use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\DatabaseException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
+use OxidEsales\Eshop\Core\Language;
+use OxidEsales\Eshop\Core\Registry;
 
 class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 {
@@ -56,8 +61,11 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDSOURCE';
         } elseif ($this->hasRequiredValuesTplSource(false)) {
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDTPL';
-        } else {
+        } elseif ($this->hasRequiredValuesCmsSource(false)) {
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDCMS';
+        } else {
+
+            return 'foo';
         }
     }
 
@@ -74,21 +82,18 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
         if (false == $this->isExecutable()) {
             return;
         }
-
         $this->throwUnvalidConfigurationException();
 
         startProfile(__METHOD__);
 
         /** @var Language $oLang */
-        $oLang = d3GetModCfgDIC()->get('d3ox.ordermanager.'.Language::class);
-
+        $oLang = oxNew(Language::class);
         $this->getManager()->getRemarkHandler()->addNote(
             sprintf(
                 $oLang->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE', null, true),
                 $this->getRecipientDescription()
             )
         );
-
         $this->startExecution();
 
         stopProfile(__METHOD__);
@@ -113,6 +118,33 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             );
 
         return implode(', ', $aMailDesc);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRequiredValues(): bool
+    {
+        return $this->hasRequiredValuesNoSource(true) &&
+            (
+                $this->hasRequiredValuesTplSource(true) ||
+                $this->hasRequiredValuesCmsSource(true)
+            ) && $this->hasRequiredValuesRecipient();
+    }
+
+    /**
+     * @param bool $blExpected
+     *
+     * @return bool
+     */
+    protected function hasRequiredValuesNoSource(bool $blExpected): bool
+    {
+        $source = (string) $this->getManager()->getValue( 'sLinkMobilityMessageFromSource' );
+
+        $return = strlen(trim($source)) &&
+                  in_array(trim($source), [self::SOURCE_CMS, self::SOURCE_TEMPLATE]);
+
+        return $blExpected ? $return : false === $return;
     }
 
     /**
@@ -168,6 +200,21 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 
     /**
      * @return bool
+     */
+    protected function hasRequiredValuesRecipient(): bool
+    {
+        $toCust = (bool) $this->getManager()->getValue( 'blLinkMobilityMessageToCustomer' );
+        $toCustom = (bool) $this->getManager()->getValue( 'blLinkMobilityMessageToCustom' );
+        $toCustomAddress = (string) $this->getManager()->getValue( 'sLinkMobilityMessageToCustomAddress' );
+
+        return  $toCust || (
+                $toCustom &&
+                (bool) strlen( trim( $toCustomAddress ) )
+            );
+    }
+
+    /**
+     * @return bool
      * @throws DBALException
      * @throws DatabaseConnectionException
      * @throws DatabaseErrorException
@@ -188,15 +235,26 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
      */
     public function startExecution()
     {
-        if ($this->canExecuteMethod() && $this->hasRequiredValues()) {
-            $this->getSendClass()->sendOrderManagerSms($this->getManager(), $this->getItem());
+        try {
+            if ($this->canExecuteMethod() && $this->hasRequiredValues()) {
+                dumpvar(__METHOD__ . __LINE__ . PHP_EOL);
+                $this->getSendClass()->sendOrderManagerSms($this->getManager(), $this->getItem());
+            }
+        } catch (emptyMesageException $e) {
+            Registry::getLogger()->error($e->getMessage());
+        } catch (noRecipientFoundException $e) {
+            Registry::getLogger()->info(
+                $this->getManager()->getFieldData('oxtitle')." => ".
+                $this->getItem()->getFieldData('oxordernr').": ".
+                $e->getMessage()
+            );
         }
     }
 
     /**
      * @return d3linkmobility_ordermanager_sender
      */
-    public function getSendClass()
+    public function getSendClass(): d3linkmobility_ordermanager_sender
     {
         /** @var d3linkmobility_ordermanager_sender $mailer */
         $sender = oxNew(d3linkmobility_ordermanager_sender::class);

@@ -20,12 +20,11 @@ $sLangName = 'Deutsch';
 $aLang = array(
     'charset'                                            => 'UTF-8',
 
-    'D3_LINKMOBILITY_ORDERMANAGER_ACTION'                => 'Mobile Messages (über LINK Mobility) senden',
+    'D3_LINKMOBILITY_ORDERMANAGER_ACTION'                => 'SMS senden (via LINK Mobility)',
 
-    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ToUseLMSettings'    => 'Der Nachrichtenempfänger wird aus den Kundendaten an den Bestellungen ermittelt.',
-    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ToUseLMSettings_DESC' => 'Welche Daten der Bestellung hierfür verwendet werden, setzen Sie in den Einstellungen des LINK Mobility Moduls unter "Erweiterungen -> Module -> Einstell.".',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ToUseLMSettings'    => '',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ToUseLMSettings_DESC' => '',
 
-    'D3_ORDERMANAGER_ACTION_MAILSEND'                    => 'E-Mail senden',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROM1'              => '',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROMSUBJECT'        => 'Betreff-Template',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROMCMS_SUBJECT'    => 'Der CMS-Titel ist gleichzeitig der Mail-Betreff.',
@@ -38,6 +37,12 @@ $aLang = array(
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROMTEMPLATE_DESC'  => 'Geben Sie den vollständigen Templatenamen (inkl. Ordner ab tpl-Ordner und Dateiendung) an',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROMCMS'            => 'aus Kundeninformation',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROMCMS_SOURCE'     => 'CMS-Eintrag',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_FROM2'              => 'an',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_TOCUSTOMER'         => 'Kunde',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_TOCUSTOMER_DESC'    => 'Der Nachrichtenempfänger wird aus den Kundendaten an den Bestellungen ermittelt. Welche Daten der Bestellung hierfür verwendet werden, setzen Sie in den Einstellungen des LINK Mobility Moduls unter "Erweiterungen -> Module -> Einstell.".',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_TOOWNER'            => 'Shopbetreiber',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_TOMAIL'             => 'folgende Mobilfunknummer(n)',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_TOMAIL_DESC'        => '<p>Geben Sie in dem Eingabefeld eine oder mehrere gültige Mobilfunknummern und deren Herkunftsland in folgendem Format an und aktivieren Sie die Option mit dem Häkchenfeld:</p><code>017112345678@DE; 015212345678@AT</code>',
 
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDSOURCE'  => 'keine gültige Inhaltsquelle gesetzt',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDTPL'     => 'keine gültigen Templatedaten gesetzt',
