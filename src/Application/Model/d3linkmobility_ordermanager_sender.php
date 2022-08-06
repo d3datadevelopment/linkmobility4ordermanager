@@ -19,6 +19,7 @@ use D3\Linkmobility4Ordermanager\Application\Model\Exceptions\emptyMesageExcepti
 use D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException;
 use D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms;
 use D3\Linkmobility4OXID\Application\Model\OrderRecipients;
+use D3\LinkmobilityClient\Exceptions\RecipientException;
 use D3\LinkmobilityClient\ValueObject\Recipient;
 use D3\ModCfg\Application\Model\d3str;
 use D3\ModCfg\Application\Model\Exception\d3ParameterNotFoundException;
@@ -217,13 +218,19 @@ die();
     {
         $recipients = [];
         if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustomer')) {
-            $recipients[] = (oxNew(OrderRecipients::class, $this->getItem()))->getSmsRecipient();
+            try {
+                $recipients[] = (oxNew(OrderRecipients::class, $this->getItem()))->getSmsRecipient();
+            } catch (noRecipientFoundException $e) {}
         }
         if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustom') &&
             strlen(trim($this->getManager()->getValue('sLinkMobilityMessageToCustomAddress')))
         ) {
             foreach ($this->extractCustomAddresses() as $phoneNumber => $countryId) {
-                $recipients[] = oxNew(Recipient::class, $phoneNumber, $countryId);
+                try {
+                    $recipients[] = oxNew(Recipient::class, $phoneNumber, $countryId);
+                } catch (RecipientException $e) {
+                    Registry::getLogger()->info($e->getMessage(), [$phoneNumber, $countryId]);
+                }
             }
         }
 
