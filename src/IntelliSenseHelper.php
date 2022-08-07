@@ -17,5 +17,7 @@ namespace D3\Linkmobility4Ordermanager\Modules\Ordermanager\Application\Model
 {
     use D3\Ordermanager\Application\Model\d3ordermanager_conf;
 
-    class d3ordermanager_conf_linkmobility_parent extends d3ordermanager_conf {}
+    class d3ordermanager_conf_linkmobility_parent extends d3ordermanager_conf
+    {
+    }
 }

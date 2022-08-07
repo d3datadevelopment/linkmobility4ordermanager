@@ -123,7 +123,7 @@ class d3linkmobility_ordermanager_sender
         // ToDo: check in TWIG and change to a generic solution (e.g. path names in template name)
         // Smarty only
         if (method_exists($templateEngine, '__set')) {
-            $templateEngine->__set( 'template_dir', $this->getTemplateDir4OrderManager( $oManager ) );
+            $templateEngine->__set('template_dir', $this->getTemplateDir4OrderManager($oManager));
         }
 
         foreach ($viewData as $id => $value) {
@@ -190,7 +190,7 @@ class d3linkmobility_ordermanager_sender
      * @param Manager $oManager
      * @return string
      */
-    public function getTemplateDir4OrderManager( Manager $oManager ): string
+    public function getTemplateDir4OrderManager(Manager $oManager): string
     {
         if ($oManager->getValue('sLinkMobilityMessageFromTheme') == 'module') {
             $sModuleId = $oManager->getValue('sLinkMobilityMessageFromModulePath');
@@ -261,7 +261,7 @@ class d3linkmobility_ordermanager_sender
 
         if (strlen($customAddresses)) {
             foreach (explode(';', $customAddresses) as $addressGroups) {
-                list($phoneNumber, $countryId) = explode('@', trim($addressGroups));
+                [$phoneNumber, $countryId] = explode('@', trim($addressGroups));
                 $addresses[trim($phoneNumber)] = trim($countryId);
             }
         }

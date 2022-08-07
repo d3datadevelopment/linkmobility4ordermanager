@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 $sLangName = 'Deutsch';
 
-$aLang = array(
+$aLang = [
     'charset'                                            => 'UTF-8',
 
     'D3_LINKMOBILITY_ORDERMANAGER_ACTION'                => 'SMS senden (via LINK Mobility)',
@@ -53,6 +53,6 @@ $aLang = array(
     'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_EMPTYMESSAGE'            => 'SMS wurde wegen leerer Nachricht nicht gesendet',
     'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT'             => 'SMS wurde wegen fehlender Empfänger nicht gesendet',
     'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_RECIPIENTERROR'          => 'SMS Empfänger %1$s (%2$s) konnte nicht verwendet werden',
-);
+];
 
 // @codeCoverageIgnoreEnd
