@@ -39,7 +39,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 {
     public $sTplName = 'd3linkmobility_ordermanager_action.tpl';
     public const ACTIVE_SWITCH = 'blActionLinkmobility_status';
-    public $sTitleIdent = 'D3_LINKMOBILITY_ORDERMANAGER_ACTION';
+    public string $sTitleIdent = 'D3_LINKMOBILITY_ORDERMANAGER_ACTION';
 
     public const SOURCE_TEMPLATE = 'template';
     public const SOURCE_CMS = 'cms';
@@ -98,12 +98,9 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
         /** @var Language $oLang */
         $oLang = oxNew(Language::class);
 
-        $this->getManager()->getRemarkHandler()->addNote(
-            sprintf(
-                $oLang->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE', null, true),
-                $this->getRecipientDescription()
-            )
-        );
+        /** @var string $format */
+        $format = $oLang->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE', null, true);
+        $this->getManager()->getRemarkHandler()->addNote(sprintf($format, $this->getRecipientDescription()));
 
         $this->startExecution();
 
@@ -238,8 +235,9 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
      * @throws StandardException
      * @throws d3ShopCompatibilityAdapterException
      * @throws d3_cfg_mod_exception
+     * @return void
      */
-    public function startExecution()
+    public function startExecution(): void
     {
         try {
             if ($this->canExecuteMethod() && $this->hasRequiredValues()) {
@@ -247,18 +245,18 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             }
         } catch (emptyMesageException $e) {
             Registry::getLogger()->error($e->getMessage());
-            $this->getManager()->getRemarkHandler()->addNote(
-                Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_EMPTYMESSAGE', null, true)
-            );
+            /** @var string $note */
+            $note = Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_EMPTYMESSAGE', null, true);
+            $this->getManager()->getRemarkHandler()->addNote($note);
         } catch (noRecipientFoundException $e) {
             Registry::getLogger()->info(
                 $this->getManager()->getFieldData('oxtitle')." => ".
                 $this->getItem()->getFieldData('oxordernr').": ".
                 $e->getMessage()
             );
-            $this->getManager()->getRemarkHandler()->addNote(
-                Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true)
-            );
+            /** @var string $note */
+            $note = Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true);
+            $this->getManager()->getRemarkHandler()->addNote($note);
         }
     }
 

@@ -1,0 +1,14 @@
+parameters:
+    scanFiles:
+        - src/IntelliSenseHelper.php
+        - ../../oxid-esales/oxideshop-ce/source/oxfunctions.php
+        - ../../oxid-esales/oxideshop-ce/source/overridablefunctions.php
+        - ../../d3/ordermanager/src/IntelliSenseHelper.php
+    paths:
+        - src
+    level: 6
+    phpVersion: 70300
+    checkMissingIterableValueType: false
+    ignoreErrors:
+        - '#d3linkmobility_ordermanager_action::startAction\(\) has no return type specified#'
+        - '#d3linkmobility_ordermanager_action::\$sTplName has no type specified#'

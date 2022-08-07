@@ -93,7 +93,7 @@ class d3linkmobility_ordermanager_sender
              ->getTemplateRenderer();
         $templateEngine = $renderer->getTemplateEngine();
 
-        /** @var $oBasket Basket */
+        /** @var Basket $oBasket */
         $oBasket = $oManager->getCurrentItem()->d3getOrderBasket4OrderManager($oManager);
 
         $oPayment = oxNew(Payment::class);
@@ -146,13 +146,19 @@ class d3linkmobility_ordermanager_sender
     {
         $iOrderLangId = $this->getManager()->getCurrentItem()->getFieldData('oxlang');
         $oLang        = Registry::getLang();
+        /** @var int $iCurrentTplLang */
         $iCurrentTplLang = $oLang->getTplLanguage();
+        /** @var int $iCurrentBaseLang */
         $iCurrentBaseLang = $oLang->getBaseLanguage();
         $oLang->setTplLanguage($iOrderLangId);
         $oLang->setBaseLanguage($iOrderLangId);
+        $content = '';
 
+        /** @var int $iCurrentCurrency */
         $iCurrentCurrency = Registry::getConfig()->getShopCurrency();
-        $iOrderCurr = $this->getManager()->getCurrentItem()->getOrderCurrency()->id;
+        /** @var \stdClass $oOrderCurr */
+        $oOrderCurr = $this->getManager()->getCurrentItem()->getOrderCurrency();
+        $iOrderCurr = $oOrderCurr->id;
         Registry::getConfig()->setActShopCurrency($iOrderCurr);
 
         set_error_handler(
@@ -173,7 +179,7 @@ class d3linkmobility_ordermanager_sender
             $content    = $templateEngine->render($this->getManager()->getValue('sLinkMobilityMessageFromTemplatename'));
         }
 
-        if (false === is_string($content) || false === (bool) strlen($content)) {
+        if (false === (bool) strlen($content)) {
             throw oxNew(emptyMesageException::class, 'message content is empty', $this->getManager()->getFieldData('oxtitle'));
         }
 
@@ -220,9 +226,9 @@ class d3linkmobility_ordermanager_sender
             try {
                 $recipients[] = (oxNew(OrderRecipients::class, $this->getItem()))->getSmsRecipient();
             } catch (noRecipientFoundException $e) {
-                $this->getManager()->getRemarkHandler()->addNote(
-                    Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true)
-                );
+                /** @var string $note */
+                $note = Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true);
+                $this->getManager()->getRemarkHandler()->addNote($note);
             }
         }
         if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustom') &&
@@ -233,17 +239,13 @@ class d3linkmobility_ordermanager_sender
                     $recipients[] = oxNew(Recipient::class, $phoneNumber, $countryId);
                 } catch (RecipientException $e) {
                     Registry::getLogger()->info($e->getMessage(), [$phoneNumber, $countryId]);
-                    $this->getManager()->getRemarkHandler()->addNote(
-                        sprintf(
-                            Registry::getLang()->translateString(
-                                'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_RECIPIENTERROR',
-                                null,
-                                true
-                            ),
-                            $phoneNumber,
-                            $countryId
-                        )
+                    /** @var string $format */
+                    $format = Registry::getLang()->translateString(
+                        'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_RECIPIENTERROR',
+                        null,
+                        true
                     );
+                    $this->getManager()->getRemarkHandler()->addNote(sprintf($format, $phoneNumber, $countryId));
                 }
             }
         }
