@@ -19,9 +19,13 @@ use D3\Linkmobility4Ordermanager\Application\Model\d3linkmobility_ordermanager_s
 use D3\Linkmobility4Ordermanager\Application\Model\Exceptions\emptyMesageException;
 use D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException;
 use D3\ModCfg\Application\Model\Exception\d3_cfg_mod_exception;
+use D3\ModCfg\Application\Model\Exception\d3ParameterNotFoundException;
 use D3\ModCfg\Application\Model\Exception\d3ShopCompatibilityAdapterException;
 use D3\Ordermanager\Application\Model\Actions\d3ordermanager_action_abstract;
 use D3\Ordermanager\Application\Model\d3ordermanager_conf;
+use D3\Ordermanager\Application\Model\Exceptions\d3ActionRequirementAbstract;
+use D3\Ordermanager\Application\Model\Exceptions\d3ordermanager_actionException;
+use DebugBar\DebugBarException;
 use Doctrine\DBAL\DBALException;
 use OxidEsales\Eshop\Application\Model\Content;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
@@ -64,8 +68,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
         } elseif ($this->hasRequiredValuesCmsSource(false)) {
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDCMS';
         } else {
-
-            return 'foo';
+            return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_UNDEFINED';
         }
     }
 
@@ -73,49 +76,51 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
      * @throws DBALException
      * @throws DatabaseConnectionException
      * @throws DatabaseErrorException
+     * @throws DatabaseException
      * @throws StandardException
+     * @throws d3ParameterNotFoundException
+     * @throws d3ActionRequirementAbstract
+     * @throws d3ordermanager_actionException
+     * @throws DebugBarException
      * @throws d3ShopCompatibilityAdapterException
      * @throws d3_cfg_mod_exception
      */
     public function startAction()
     {
-        if (false == $this->isExecutable()) {
+        if (false === $this->isExecutable()) {
             return;
         }
+
         $this->throwUnvalidConfigurationException();
 
         startProfile(__METHOD__);
 
         /** @var Language $oLang */
         $oLang = oxNew(Language::class);
+
         $this->getManager()->getRemarkHandler()->addNote(
             sprintf(
                 $oLang->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE', null, true),
                 $this->getRecipientDescription()
             )
         );
+
         $this->startExecution();
 
         stopProfile(__METHOD__);
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getRecipientDescription(): string
     {
-        $aEditedValues = $this->getManager()->getEditedValues();
-
         $aMailDesc = [];
-        $aEditedValues ?
-            ($aEditedValues['blLinkMobilityMessageToCustomer'] ? $aMailDesc[] = 'Customer' : '') :
-            ($this->getManager()->getValue('blLinkMobilityMessageToCustomer') ? $aMailDesc[] = 'Customer' : '');
-        $aEditedValues ?
-            ($aEditedValues['blLinkMobilityMessageToCustom'] ? $aMailDesc[] = 'Custom: ' . $aEditedValues['sLinkMobilityMessageToCustomAddress'] : '') :
-            ($this->getManager()->getValue('blLinkMobilityMessageToCustom') ?
-                $aMailDesc[] = 'Custom: ' . $this->getManager()->getValue('sLinkMobilityMessageToCustomAddress') :
-                ''
-            );
+        ($this->getManager()->getValue('blLinkMobilityMessageToCustomer') ? $aMailDesc[] = 'Customer' : '');
+        ($this->getManager()->getValue('blLinkMobilityMessageToCustom') ?
+            $aMailDesc[] = 'Custom: ' . $this->getManager()->getValue('sLinkMobilityMessageToCustomAddress') :
+            ''
+        );
 
         return implode(', ', $aMailDesc);
     }
@@ -130,21 +135,6 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
                 $this->hasRequiredValuesTplSource(true) ||
                 $this->hasRequiredValuesCmsSource(true)
             ) && $this->hasRequiredValuesRecipient();
-    }
-
-    /**
-     * @param bool $blExpected
-     *
-     * @return bool
-     */
-    protected function hasRequiredValuesNoSource(bool $blExpected): bool
-    {
-        $source = (string) $this->getManager()->getValue( 'sLinkMobilityMessageFromSource' );
-
-        $return = strlen(trim($source)) &&
-                  in_array(trim($source), [self::SOURCE_CMS, self::SOURCE_TEMPLATE]);
-
-        return $blExpected ? $return : false === $return;
     }
 
     /**
@@ -252,16 +242,21 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
     {
         try {
             if ($this->canExecuteMethod() && $this->hasRequiredValues()) {
-                dumpvar(__METHOD__ . __LINE__ . PHP_EOL);
                 $this->getSendClass()->sendOrderManagerSms($this->getManager(), $this->getItem());
             }
         } catch (emptyMesageException $e) {
             Registry::getLogger()->error($e->getMessage());
+            $this->getManager()->getRemarkHandler()->addNote(
+                Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_EMPTYMESSAGE', null, true)
+            );
         } catch (noRecipientFoundException $e) {
             Registry::getLogger()->info(
                 $this->getManager()->getFieldData('oxtitle')." => ".
                 $this->getItem()->getFieldData('oxordernr').": ".
                 $e->getMessage()
+            );
+            $this->getManager()->getRemarkHandler()->addNote(
+                Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true)
             );
         }
     }
@@ -271,10 +266,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
      */
     public function getSendClass(): d3linkmobility_ordermanager_sender
     {
-        /** @var d3linkmobility_ordermanager_sender $mailer */
-        $sender = oxNew(d3linkmobility_ordermanager_sender::class);
-
-        return $sender;
+        return oxNew(d3linkmobility_ordermanager_sender::class);
     }
 
     /**

@@ -47,8 +47,12 @@ $aLang = array(
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDSOURCE'  => 'keine gültige Inhaltsquelle gesetzt',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDTPL'     => 'keine gültigen Templatedaten gesetzt',
     'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDCMS'     => 'kein gültiger CMS-Eintrag gesetzt',
+    'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_UNDEFINED'      => 'unbekannter Fehler',
 
-    'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE'                         => 'sende LinkMobility Nachricht an %s',
+    'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE'                         => 'sende SMS via LinkMobility an %s',
+    'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_EMPTYMESSAGE'            => 'SMS wurde wegen leerer Nachricht nicht gesendet',
+    'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT'             => 'SMS wurde wegen fehlender Empfänger nicht gesendet',
+    'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_RECIPIENTERROR'          => 'SMS Empfänger %1$s (%2$s) konnte nicht verwendet werden',
 );
 
 // @codeCoverageIgnoreEnd

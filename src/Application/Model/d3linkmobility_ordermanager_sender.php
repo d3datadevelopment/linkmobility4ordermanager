@@ -34,6 +34,7 @@ use OxidEsales\Eshop\Application\Model\Payment;
 use OxidEsales\Eshop\Core\Email;
 use OxidEsales\Eshop\Core\Exception\ArticleException;
 use OxidEsales\Eshop\Core\Exception\ArticleInputException;
+use OxidEsales\Eshop\Core\Exception\StandardException;
 use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Core\Controller\BaseController;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
@@ -63,10 +64,7 @@ class d3linkmobility_ordermanager_sender
     {
         $this->setManager($manager);
         $this->setItem($item);
-dumpvar(__METHOD__.__LINE__.PHP_EOL);
-        dumpvar($this->getMessageBody());
-        dumpvar($this->getRecipients());
-die();
+
         $sms = oxNew(Sms::class, $this->getMessageBody());
         $sms->sendCustomRecipientMessage($this->getRecipients());
     }
@@ -144,7 +142,7 @@ die();
      * @throws d3ParameterNotFoundException
      * @throws emptyMesageException
      */
-    protected function _d3GenerateOrderManagerMessageContent(TemplateEngineInterface $templateEngine)
+    protected function _d3GenerateOrderManagerMessageContent(TemplateEngineInterface $templateEngine): string
     {
         $iOrderLangId = $this->getManager()->getCurrentItem()->getFieldData('oxlang');
         $oLang        = Registry::getLang();
@@ -212,7 +210,8 @@ die();
 
     /**
      * @return array
-     * @throws noRecipientFoundException
+     * @throws StandardException
+     * @throws d3ParameterNotFoundException
      */
     protected function getRecipients(): array
     {
@@ -220,7 +219,11 @@ die();
         if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustomer')) {
             try {
                 $recipients[] = (oxNew(OrderRecipients::class, $this->getItem()))->getSmsRecipient();
-            } catch (noRecipientFoundException $e) {}
+            } catch (noRecipientFoundException $e) {
+                $this->getManager()->getRemarkHandler()->addNote(
+                    Registry::getLang()->translateString('D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_NORECIPIENT', null, true)
+                );
+            }
         }
         if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustom') &&
             strlen(trim($this->getManager()->getValue('sLinkMobilityMessageToCustomAddress')))
@@ -230,6 +233,17 @@ die();
                     $recipients[] = oxNew(Recipient::class, $phoneNumber, $countryId);
                 } catch (RecipientException $e) {
                     Registry::getLogger()->info($e->getMessage(), [$phoneNumber, $countryId]);
+                    $this->getManager()->getRemarkHandler()->addNote(
+                        sprintf(
+                            Registry::getLang()->translateString(
+                                'D3_ORDERMANAGER_JOBDESC_SENDLMMESSAGE_RECIPIENTERROR',
+                                null,
+                                true
+                            ),
+                            $phoneNumber,
+                            $countryId
+                        )
+                    );
                 }
             }
         }
