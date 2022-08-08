@@ -39,7 +39,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
 {
     public $sTplName = 'd3linkmobility_ordermanager_action.tpl';
     public const ACTIVE_SWITCH = 'blActionLinkmobility_status';
-    public string $sTitleIdent = 'D3_LINKMOBILITY_ORDERMANAGER_ACTION';
+    public $sTitleIdent = 'D3_LINKMOBILITY_ORDERMANAGER_ACTION';
 
     public const SOURCE_TEMPLATE = 'template';
     public const SOURCE_CMS = 'cms';
