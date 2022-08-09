@@ -67,6 +67,8 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDTPL';
         } elseif ($this->hasRequiredValuesCmsSource(false)) {
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NOVALIDCMS';
+        } elseif ($this->hasRequiredValuesRecipient(false)) {
+            return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_NORECIPIENT';
         } else {
             return 'D3_ORDERMANAGER_ACTION_LINKMOBILITYMESSAGE_ERR_UNDEFINED';
         }
@@ -132,7 +134,7 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
             (
                 $this->hasRequiredValuesTplSource(true) ||
                 $this->hasRequiredValuesCmsSource(true)
-            ) && $this->hasRequiredValuesRecipient();
+            ) && $this->hasRequiredValuesRecipient(true);
     }
 
     /**
@@ -204,16 +206,17 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
     /**
      * @return bool
      */
-    protected function hasRequiredValuesRecipient(): bool
+    protected function hasRequiredValuesRecipient(bool $blExpected): bool
     {
         $toCust = (bool) $this->getManager()->getValue('blLinkMobilityMessageToCustomer');
         $toCustom = (bool) $this->getManager()->getValue('blLinkMobilityMessageToCustom');
         $toCustomAddress = (string) $this->getManager()->getValue('sLinkMobilityMessageToCustomAddress');
 
-        return  $toCust || (
-            $toCustom &&
-                (bool) strlen(trim($toCustomAddress))
-        );
+        if ($blExpected === true) {
+            return $toCust || ( $toCustom && (bool) strlen( trim( $toCustomAddress ) ) === true );
+        } else {
+            return !($toCust || ( $toCustom && (bool) strlen( trim( $toCustomAddress ) ) === true ));
+        }
     }
 
     /**
