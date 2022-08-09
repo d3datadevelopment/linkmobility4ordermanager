@@ -33,7 +33,7 @@
   },
   "require": {
     "php": ">=7.3",
-    "d3/ordermanager": "^5.0",
+    "d3/ordermanager": "^5.0.4.0",
     "d3/linkmobility4oxid": "^1.0"
   },
   "require-dev": {
