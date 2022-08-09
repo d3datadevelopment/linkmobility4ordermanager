@@ -16,12 +16,12 @@ declare(strict_types=1);
 namespace D3\Linkmobility4Ordermanager\Application\Model\Actions;
 
 use D3\Linkmobility4Ordermanager\Application\Model\d3linkmobility_ordermanager_sender;
-use D3\Linkmobility4Ordermanager\Application\Model\Exceptions\emptyMesageException;
 use D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException;
 use D3\ModCfg\Application\Model\Exception\d3_cfg_mod_exception;
 use D3\ModCfg\Application\Model\Exception\d3ParameterNotFoundException;
 use D3\ModCfg\Application\Model\Exception\d3ShopCompatibilityAdapterException;
 use D3\Ordermanager\Application\Model\Actions\d3ordermanager_action_abstract;
+use D3\Ordermanager\Application\Model\Exceptions\emptyMesageException;
 use D3\Ordermanager\Application\Model\d3ordermanager_conf;
 use D3\Ordermanager\Application\Model\Exceptions\d3ActionRequirementAbstract;
 use D3\Ordermanager\Application\Model\Exceptions\d3ordermanager_actionException;
@@ -204,6 +204,8 @@ class d3linkmobility_ordermanager_action extends d3ordermanager_action_abstract
     }
 
     /**
+     * @param bool $blExpected
+     *
      * @return bool
      */
     protected function hasRequiredValuesRecipient(bool $blExpected): bool

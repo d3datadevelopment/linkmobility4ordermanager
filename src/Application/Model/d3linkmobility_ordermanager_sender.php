@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace D3\Linkmobility4Ordermanager\Application\Model;
 
-use D3\Linkmobility4Ordermanager\Application\Model\Exceptions\emptyMesageException;
 use D3\Linkmobility4OXID\Application\Model\Exceptions\noRecipientFoundException;
 use D3\Linkmobility4OXID\Application\Model\MessageTypes\Sms;
 use D3\Linkmobility4OXID\Application\Model\OrderRecipients;
@@ -24,6 +23,8 @@ use D3\LinkmobilityClient\ValueObject\Recipient;
 use D3\ModCfg\Application\Model\Exception\d3ParameterNotFoundException;
 use D3\Ordermanager\Application\Model\d3ordermanager;
 use D3\Ordermanager\Application\Model\d3ordermanager as Manager;
+use D3\Ordermanager\Application\Model\Exceptions\emptyMesageException;
+use D3\Ordermanager\Application\Model\MessageContentGenerator;
 use OxidEsales\Eshop\Application\Model\Order;
 use OxidEsales\Eshop\Core\Exception\ArticleException;
 use OxidEsales\Eshop\Core\Exception\ArticleInputException;
@@ -90,7 +91,7 @@ class d3linkmobility_ordermanager_sender
     protected function getRecipients(): array
     {
         $recipients = [];
-        if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustomer')) {
+        if ($this->getManager()->getValue('blLinkMobilityMessageToCustomer')) {
             try {
                 $recipients[] = (oxNew(OrderRecipients::class, $this->getItem()))->getSmsRecipient();
             } catch (noRecipientFoundException $e) {
@@ -99,7 +100,7 @@ class d3linkmobility_ordermanager_sender
                 $this->getManager()->getRemarkHandler()->addNote($note);
             }
         }
-        if ((bool) $this->getManager()->getValue('blLinkMobilityMessageToCustom') &&
+        if ($this->getManager()->getValue('blLinkMobilityMessageToCustom') &&
             strlen(trim($this->getManager()->getValue('sLinkMobilityMessageToCustomAddress')))
         ) {
             foreach ($this->extractCustomAddresses() as $phoneNumber => $countryId) {
